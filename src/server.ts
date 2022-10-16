@@ -1,34 +1,36 @@
-import { createServer } from '@graphql-yoga/node';
-import { buildSchema } from 'graphql';
-
-const typeDefs = /* GraphQL */ `
-  type Query {
-    greeting: String!
-    lazyGreeting: String!
-  }
-`;
-
-const schema = buildSchema(typeDefs, {
-  enableDeferStream: true,
-});
+import { createSchema, createYoga } from 'graphql-yoga';
+import { createServer } from 'http';
+import { renderGraphiQL } from './renderGraphiQL';
 
 const sleep = (ms = 1000) => new Promise(resolve => setTimeout(resolve, ms));
 
-const server = createServer({
-  schema: {
-    typeDefs: schema,
-    resolvers: {
-      Query: {
-        greeting: () => 'Hi!',
+const schema = createSchema({
+  typeDefs: [/* GraphQL */ `
+    type Query {
+      greeting: String!
+      lazyGreeting: String!
+    }
+  `],
+  resolvers: {
+    Query: {
+      greeting: () => 'Hi!',
 
-        lazyGreeting: async () => {
-          await sleep();
+      lazyGreeting: async function() {
+        await sleep();
 
-          return "...Oh, Hi! I don't know you were here.";
-        },
+        return "...Oh, Hi! I don't know you were here.";
       },
     },
   },
+  enableDeferStream: true,
 });
 
-server.start();
+const yoga = createYoga({
+  schema,
+  renderGraphiQL,
+});
+
+const server = createServer(yoga);
+server.listen(4000, '0.0.0.0', () => {
+  console.log('Server listening on http://localhost:4000/graphql');
+});

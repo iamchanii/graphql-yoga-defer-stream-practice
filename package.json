@@ -5,8 +5,8 @@
     "dev": "ts-node-dev src/server.ts"
   },
   "dependencies": {
-    "@graphql-yoga/node": "^2.13.13",
-    "graphql": "experimental-stream-defer"
+    "graphql": "experimental-stream-defer",
+    "graphql-yoga": "three"
   },
   "devDependencies": {
     "@types/node": "^18.11.0",
